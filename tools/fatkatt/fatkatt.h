@@ -21,9 +21,10 @@
 * SOFTWARE.
 */
 
-#include "stdio.h"
+#ifndef FATKATT_H
+#define FATKATT_H
 
-// Make File System FAT KATT
+#include "stdint.h"
 
 /* Specificiation
 *     Layout
@@ -45,6 +46,20 @@
 *         dw 1             ; FAT sector count
 */
 
-int main() {
+#define FATKATT_SIGNATURE_SIZE 7
+#define FATKATT_FAT_SIZE       16
 
-}
+// Header section as a struct
+typedef struct {
+    uint16_t jmp;
+    int8_t signature[FATKATT_SIGNATURE_SIZE];
+    uint16_t bytes_per_sector;
+    uint16_t sector_count;
+    uint16_t fat_size;
+    uint16_t sectors_per_track;
+
+} __attribute__((packed)) header_t;
+
+
+
+#endif
