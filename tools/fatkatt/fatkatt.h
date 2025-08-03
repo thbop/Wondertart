@@ -46,8 +46,10 @@
 *         dw 1             ; FAT sector count
 */
 
-#define FATKATT_SIGNATURE_SIZE 7
-#define FATKATT_FAT_SIZE       16
+// Random definitions
+#define FATKATT_SIGNATURE_SIZE      7
+#define FATKATT_FAT_SIZE            16
+#define FATKATT_DIR_ENTRY_NAME_SIZE 11
 
 // Header section as a struct
 typedef struct {
@@ -58,8 +60,23 @@ typedef struct {
     uint16_t fat_size;
     uint16_t sectors_per_track;
 
-} __attribute__((packed)) header_t;
+} __attribute__((packed)) fk_header_t;
 
+// A directory entry properties union
+typedef union {
+    struct {
+        uint8_t is_directory : 1;
+    };
+    uint8_t value;
+} fk_dir_entry_properties;
+
+// A directory entry as a struct
+typedef struct {
+    fk_dir_entry_properties properties;
+    uint8_t name[FATKATT_DIR_ENTRY_NAME_SIZE];
+    uint16_t fat_ptr;
+    uint16_t fat_sector_count;
+} __attribute__((packed)) fk_dir_entry_t;
 
 
 #endif

@@ -40,7 +40,7 @@ int main( int argc, char **argv ) {
     static uint8_t floppy_buffer[FLOPPY_SIZE] = { 0 };
 
     // Generate default headers
-    header_t *header = (header_t*)floppy_buffer;
+    fk_header_t *header = (fk_header_t*)floppy_buffer;
     int8_t signature[] = "FATKATT";
     memcpy( header->signature, signature, FATKATT_SIGNATURE_SIZE );
     header->bytes_per_sector  = FLOPPY_SECTOR_SIZE;

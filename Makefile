@@ -11,14 +11,17 @@ TOOLS_SRC_DIR = tools
 
 .PHONY: tools
 
-all: tools wondertart
+all: tools wondertart clean
 
 tools: always
-	$(MAKE) -C $(TOOLS_SRC_DIR)/fatkatt CC=$(CCTOOLS) BUILD_DIR=$(abspath $(BUILD_DIR))
+	$(MAKE) -C $(TOOLS_SRC_DIR)/fatkatt CC=$(CCTOOLS) \
+		BUILD_DIR=$(abspath $(BUILD_DIR))
 
 wondertart: always
-	
-	dd if=/dev/zero of=$(BUILD_DIR)/wondertart.img bs=1b count=2880 conv=notrunc
+	$(BUILD_DIR)/mkfs.fk $(BUILD_DIR)/wondertart.img
 
 always:
 	mkdir -p bin
+
+clean:
+	rm $(BUILD_DIR)/*.o
