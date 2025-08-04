@@ -23,3 +23,26 @@
 
 #include "fatkatt.h"
 
+// Just manipulate the entire floppy within memory
+uint8_t g_fk_floppy[FK_FLOPPY_SIZE];
+FK_SYS_FILE g_fk_file_handles[FK_FILE_HANDLE_COUNT];
+
+// Initialize the FATKATT floppy and file system
+// Returns false upon failure
+bool fk_initialize( const char *floppy_name ) {
+    // Ensure that all file handles are set to zero
+    memset( g_fk_file_handles, 0, sizeof(g_fk_file_handles) );
+
+    FILE *fp = fopen( floppy_name, "rb" );
+    if ( fp == NULL ) {
+        fprintf( stderr, "Unable to load floppy file \"%s\"!\n", floppy_name );
+        return false;
+    }
+
+    fread( g_fk_floppy, sizeof(uint8_t), FK_FLOPPY_SIZE, fp );
+
+
+    fclose( fp );
+    return true;
+
+}

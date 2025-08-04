@@ -24,9 +24,11 @@
 #ifndef FATKATT_H
 #define FATKATT_H
 
+#include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "stdint.h"
+#include "stdbool.h"
 
 /* Specificiation
 *     Layout
@@ -49,14 +51,22 @@
 */
 
 // Random definitions
-#define FATKATT_SIGNATURE_SIZE      7
-#define FATKATT_FAT_SIZE            16
-#define FATKATT_DIR_ENTRY_NAME_SIZE 11
+#define FK_FLOPPY_SECTORS_PER_TRACK 18
+#define FK_FLOPPY_SECTOR_SIZE       512
+#define FK_FLOPPY_SECTOR_COUNT      2880
+#define FK_FLOPPY_SIZE \
+    ( FK_FLOPPY_SECTOR_SIZE * FK_FLOPPY_SECTOR_COUNT )
+
+#define FK_SIGNATURE_SIZE           7
+#define FK_FAT_SIZE                 16
+#define FK_DIR_ENTRY_NAME_SIZE      11
+
+#define FK_FILE_HANDLE_COUNT        256
 
 // Header section as a struct
 typedef struct {
     uint16_t jmp;
-    int8_t signature[FATKATT_SIGNATURE_SIZE];
+    int8_t signature[FK_SIGNATURE_SIZE];
     uint16_t bytes_per_sector;
     uint16_t sector_count;
     uint16_t fat_size;
@@ -75,7 +85,7 @@ typedef union {
 // A directory entry as a struct
 typedef struct {
     fk_dir_entry_properties properties;
-    uint8_t name[FATKATT_DIR_ENTRY_NAME_SIZE];
+    uint8_t name[FK_DIR_ENTRY_NAME_SIZE];
     uint16_t fat_ptr;
     uint16_t fat_sector_count;
 } __attribute__((packed)) fk_dir_entry_t;
@@ -106,16 +116,15 @@ typedef struct {
 
 // Standard file access functions
 
-FK_SYS_FILE g_fk_file_handles[256];
+// Initialize the FATKATT floppy and file system
+bool fk_initialize( const char *floppy_name );
 
 FK_FILE *fk_fopen( const char *filename, const char *mode );
+int fk_fclose( FK_FILE *stream );
 size_t fk_fread( void *ptr, size_t size, size_t count, FK_FILE *stream );
 size_t fk_fwrite( const void *ptr, size_t size, size_t count, FK_FILE *stream );
 char *fk_fgets( char *str, int num, FK_FILE *stream );
-
-// Ensure that all file handles are set to zero
-void fk_initialize_file_handles() {
-    memset( g_fk_file_handles, 0, sizeof(g_fk_file_handles) );
-}
+long int fk_ftell( FK_FILE *stream );
+int fk_fseek( FK_FILE *stream, long int offset, int origin );
 
 #endif

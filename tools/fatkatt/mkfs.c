@@ -29,23 +29,18 @@
 
 #include "fatkatt.h"
 
-#define FLOPPY_SECTORS_PER_TRACK 18
-#define FLOPPY_SECTOR_SIZE       512
-#define FLOPPY_SECTOR_COUNT      2880
-#define FLOPPY_SIZE              ( FLOPPY_SECTOR_SIZE * FLOPPY_SECTOR_COUNT )
-
 
 int main( int argc, char **argv ) {
     // Construct the buffer
-    static uint8_t floppy_buffer[FLOPPY_SIZE] = { 0 };
+    static uint8_t floppy_buffer[FK_FLOPPY_SIZE] = { 0 };
 
     // Generate default headers
     fk_header_t *header = (fk_header_t*)floppy_buffer;
     int8_t signature[] = "FATKATT";
-    memcpy( header->signature, signature, FATKATT_SIGNATURE_SIZE );
-    header->bytes_per_sector  = FLOPPY_SECTOR_SIZE;
-    header->sector_count      = FLOPPY_SECTOR_COUNT;
-    header->fat_size          = FATKATT_FAT_SIZE;
+    memcpy( header->signature, signature, FK_SIGNATURE_SIZE );
+    header->bytes_per_sector  = FK_FLOPPY_SECTOR_SIZE;
+    header->sector_count      = FK_FLOPPY_SECTOR_COUNT;
+    header->fat_size          = FK_FAT_SIZE;
     header->sectors_per_track = 18;
 
     // Attempt to open the provided file
@@ -60,7 +55,7 @@ int main( int argc, char **argv ) {
     }
 
     // Write
-    fwrite( floppy_buffer, sizeof(uint8_t), FLOPPY_SIZE, fp );
+    fwrite( floppy_buffer, sizeof(uint8_t), FK_FLOPPY_SIZE, fp );
 
     // Close and exit
     fclose( fp );
