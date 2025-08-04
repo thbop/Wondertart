@@ -23,9 +23,14 @@
 
 #include "fatkatt.h"
 
+// System file handler
+typedef struct {
+    fk_dir_entry_t dir_entry;
+} fk_file_handler_t;
+
 // Just manipulate the entire floppy within memory
 uint8_t g_fk_floppy[FK_FLOPPY_SIZE];
-FK_SYS_FILE g_fk_file_handles[FK_FILE_HANDLE_COUNT];
+fk_file_handler_t g_fk_file_handles[FK_FILE_HANDLE_COUNT];
 
 // Initialize the FATKATT floppy and file system
 // Returns false upon failure
@@ -44,5 +49,30 @@ bool fk_initialize( const char *floppy_name ) {
 
     fclose( fp );
     return true;
+
+}
+
+// Reads a given number of sectors into a given buffer
+void _fk_floppy_read( uint8_t *dst, uint32_t lba, uint32_t sector_count ) {
+    // Actual implementation will be different
+    memcpy(
+        dst,
+        g_fk_floppy + ( lba * FK_FLOPPY_SECTOR_SIZE ),
+        sector_count * FK_FLOPPY_SECTOR_SIZE
+    );
+}
+
+// Writes a 512 byte block of memory onto the disk
+void _fk_floppy_write_sector( uint32_t lba, uint8_t *src ) {
+    // Actual implementation will be different
+    memcpy(
+        g_fk_floppy + ( lba * FK_FLOPPY_SECTOR_SIZE ),
+        src,
+        FK_FLOPPY_SECTOR_SIZE
+    );
+}
+
+// https://cplusplus.com/reference/cstdio/fopen/
+FK_FILE *fk_fopen( const char *filename, const char *mode ) {
 
 }

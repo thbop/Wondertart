@@ -80,11 +80,11 @@ typedef union {
         uint8_t is_directory : 1;
     };
     uint8_t value;
-} fk_dir_entry_properties;
+} fk_dir_entry_properties_t;
 
 // A directory entry as a struct
 typedef struct {
-    fk_dir_entry_properties properties;
+    fk_dir_entry_properties_t properties;
     uint8_t name[FK_DIR_ENTRY_NAME_SIZE];
     uint16_t fat_ptr;
     uint16_t fat_sector_count;
@@ -100,19 +100,13 @@ enum {
     FK_FILE_BINARY = 0x80,
 };
 
-// File handler
+// Front end file handler
 typedef struct {
     uint8_t _id;   // File handler identifier
+    int8_t _mode;  // File open mode
     uint32_t _pos; // Current position in the file
 } FK_FILE;
 
-// System file handler (with more access)
-typedef struct {
-    int8_t mode;    // File open mode
-    int8_t *buffer; // Pointer to the data buffer (NULL is write/append mode)
-    uint32_t buffer_size;
-    uint32_t pos;
-} FK_SYS_FILE;
 
 // Standard file access functions
 
