@@ -24,6 +24,8 @@
 #ifndef FATKATT_H
 #define FATKATT_H
 
+#include "stdlib.h"
+#include "string.h"
 #include "stdint.h"
 
 /* Specificiation
@@ -78,5 +80,42 @@ typedef struct {
     uint16_t fat_sector_count;
 } __attribute__((packed)) fk_dir_entry_t;
 
+// File open modes
+enum {
+    FK_FILE_CLOSED = 0x00,
+    FK_FILE_READ   = 0x01,
+    FK_FILE_WRITE  = 0x02,
+    FK_FILE_APPEND = 0x04,
+
+    FK_FILE_BINARY = 0x80,
+};
+
+// File handler
+typedef struct {
+    uint8_t _id;   // File handler identifier
+    uint32_t _pos; // Current position in the file
+} FK_FILE;
+
+// System file handler (with more access)
+typedef struct {
+    int8_t mode;    // File open mode
+    int8_t *buffer; // Pointer to the data buffer (NULL is write/append mode)
+    uint32_t buffer_size;
+    uint32_t pos;
+} FK_SYS_FILE;
+
+// Standard file access functions
+
+FK_SYS_FILE g_fk_file_handles[256];
+
+FK_FILE *fk_fopen( const char *filename, const char *mode );
+size_t fk_fread( void *ptr, size_t size, size_t count, FK_FILE *stream );
+size_t fk_fwrite( const void *ptr, size_t size, size_t count, FK_FILE *stream );
+char *fk_fgets( char *str, int num, FK_FILE *stream );
+
+// Ensure that all file handles are set to zero
+void fk_initialize_file_handles() {
+    memset( g_fk_file_handles, 0, sizeof(g_fk_file_handles) );
+}
 
 #endif

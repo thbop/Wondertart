@@ -23,6 +23,10 @@
 
 // Copy file to FAT KATT file system
 
+#include "stdio.h"
+#define FK_IMPLEMENTATION
+#include "fatkatt.h"
+
 
 
 int main( int argc, char **argv ) {
