@@ -11,7 +11,7 @@ TOOLS_SRC_DIR = tools
 
 .PHONY: tools
 
-all: tools wondertart clean
+all: tools wondertart
 
 tools: always
 	$(MAKE) -C $(TOOLS_SRC_DIR)/fatkatt CC=$(CCTOOLS) \

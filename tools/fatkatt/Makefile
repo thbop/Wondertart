@@ -1,4 +1,4 @@
-CFLAGS = -c
+CFLAGS = -c -Wall
 
 all: fk mkfs.fk copy.fk
 
