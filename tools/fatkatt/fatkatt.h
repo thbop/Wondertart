@@ -73,6 +73,8 @@
 // Implementation definitions
 #define FK_FILE_HANDLE_COUNT        256
 #define FK_DIR_ENTRIES_IN_SECTOR    32 // sector_size / sizeof(fk_dir_entry_t)
+#define FK_EXTENSION_SEPARATOR      '.'
+#define FK_PATH_SEPARATOR           '/'
 
 // Header section as a struct
 typedef struct {

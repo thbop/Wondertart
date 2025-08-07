@@ -31,5 +31,7 @@
 int main( int argc, char **argv ) {
     fk_initialize( "bin/wondertart.img" );
 
+    fk_fopen("grass.txt", "rb");
+
     return 0;
 }

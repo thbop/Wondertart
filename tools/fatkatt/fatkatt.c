@@ -120,7 +120,7 @@ char *_fk_path_filename_from_raw( const char *raw_filename ) {
             case STATE_SPACE:
                 if ( raw_filename[i] != ' ' ) {
                     state = STATE_EXTENSION;
-                    out[out_i++] = '.';
+                    out[out_i++] = FK_EXTENSION_SEPARATOR;
                     goto l_state_extension;
                 }
                 break;
@@ -189,14 +189,93 @@ bool _fk_scan_directory(
 }
 
 // Processes a file path and returns a directory entry (via arg ptr)
-// Returns true upon success
-bool _fk_process_path( const char *path, fk_dir_entry_t *dir ) {
-    
+// Returns true if the file is found
+bool _fk_process_path( const char *path, fk_dir_entry_t *out_entry ) {
+    fk_dir_entry_t dir = { 0 }; // Current directory (starts as root)
+    char dir_name[FK_DIR_ENTRY_NAME_SIZE + 1] = "";
+
+    int
+        entry_start = 1,
+        entry_size = 0;
+
+    for ( int i = 0; i < (int)strlen( path ); i++ ) {
+        if ( path[0] == FK_PATH_SEPARATOR ) {
+            if ( entry_size > 0 ) {
+                strncpy( dir_name, path + entry_start, FK_DIR_ENTRY_NAME_SIZE );
+                dir_name[FK_DIR_ENTRY_NAME_SIZE] = '\0';
+
+                // Check if we are searching the root directory or not
+                fk_dir_entry_t *search_dir = NULL;
+                if ( dir.properties & FK_DIR_ENTRY_PROPERTY_IS_DIR )
+                    search_dir = &dir;
+
+                if ( _fk_scan_directory( dir_name, search_dir, &dir ) ) {
+                    // If not directory, we probably found our file
+                    if ( !( dir.properties & FK_DIR_ENTRY_PROPERTY_IS_DIR ) ) {
+                        memcpy( out_entry, &dir, sizeof(fk_dir_entry_t) );
+                        return true;
+                    }
+                } else // Could not find directory/file
+                    return false;
+            }
+
+            entry_start = i + 1;
+            entry_size  = 0;
+        }
+        else
+            entry_size++;
+    }
 
     return false;
 }
 
+// Parses modes like "rb" and "a" and returns the appropriate enums
+// Returns FK_FILE_CLOSED if an error occurred
+int _fk_parse_file_mode( const char *mode ) {
+    if ( mode == NULL )
+        return FK_FILE_CLOSED;
+
+    int out = 0;
+    int length = (int)strlen( mode );
+
+    // Invalid length
+    if ( 1 > length || length > 2 )
+        return FK_FILE_CLOSED;
+    
+    // Switch first argument
+    switch ( mode[0] ) {
+        case 'r': out |= FK_FILE_READ;   break;
+        case 'w': out |= FK_FILE_WRITE;  break;
+        case 'a': out |= FK_FILE_APPEND; break;
+        default:
+            return FK_FILE_CLOSED;
+    }
+
+    // This is safe since there is a null-terminator
+    if ( mode[1] == 'b' )
+        out |= FK_FILE_BINARY;
+
+
+    return out;
+}
+
 // https://cplusplus.com/reference/cstdio/fopen/
 FK_FILE *fk_fopen( const char *filename, const char *mode ) {
-    return NULL;
+    // Get handle
+    int handle = _fk_get_file_handle();
+    if ( handle < 0 ) // If invalid
+        return NULL;
+
+    // Set mode
+    g_fk_file_handles[handle].mode = _fk_parse_file_mode( mode );
+    if ( g_fk_file_handles[handle].mode == FK_FILE_CLOSED )
+        return NULL;
+
+
+    // Create front-end file handle and return
+    FK_FILE *fp = (FK_FILE*)malloc( sizeof(FK_FILE) );
+    fp->_id  = handle;
+    fp->_pos = 0;
+
+    return fp;
 }
